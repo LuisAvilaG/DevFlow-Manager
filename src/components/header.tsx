@@ -1,11 +1,14 @@
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Settings, HelpCircle } from 'lucide-react'; // Importar el icono de ayuda
-import { Logo } from './logo';
+"use client";
+
+import Link from "next/link";
+import { HelpCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Logo from "./logo";
 
 interface HeaderProps {
-  onHelpClick: () => void; // Prop para manejar el clic en el botón de ayuda
-  onQuickTest: () => void; // Mantener la prop existente
+  onHelpClick: () => void;
+  // ¡CORREGIDO! Se añade '?' para hacer la propiedad opcional.
+  onQuickTest?: () => void; 
 }
 
 export default function Header({ onHelpClick, onQuickTest }: HeaderProps) {
@@ -27,12 +30,6 @@ export default function Header({ onHelpClick, onQuickTest }: HeaderProps) {
           <Button variant="ghost" size="icon" aria-label="Help" onClick={onHelpClick}>
             <HelpCircle className="h-5 w-5" />
           </Button>
-
-          <Link href="/settings" passHref>
-            <Button variant="ghost" size="icon" aria-label="Settings">
-              <Settings className="h-5 w-5" />
-            </Button>
-          </Link>
         </div>
       </div>
     </header>
