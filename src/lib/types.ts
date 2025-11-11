@@ -15,13 +15,13 @@ export interface Documento {
 /**
  * Representa un desarrollo completo, que agrupa varios documentos
  * y contiene la información general del proyecto.
+ * ¡CORREGIDO! Se eliminó la propiedad 'estado', ya que el estado se gestiona a nivel de Documento.
  */
 export interface Desarrollo {
   id: string;
   nombre: string;
   fechaCreacion: string;
   cliente: string;
-  estado: DocumentoEstado;
   horasEstimadas: string;
   documentos: Documento[];
 }
