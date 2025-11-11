@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  // ¡CORREGIDO! 'serverExternalPackages' se mueve fuera de 'experimental'.
+  serverExternalPackages: ['@genkit-ai/ai', '@genkit-ai/core'],
   experimental: {
-    // ¡CORREGIDO! 'serverComponentsExternalPackages' ha sido renombrado a 'serverExternalPackages'.
-    serverExternalPackages: ['@genkit-ai/ai', '@genkit-ai/core'],
     serverActions: {
       bodySizeLimit: '32mb',
     },

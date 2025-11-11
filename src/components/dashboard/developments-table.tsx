@@ -70,7 +70,6 @@ export function DevelopmentsTable({ data, onActionClick }: DevelopmentsTableProp
             data.map((desarrollo) => (
               <TableRow key={desarrollo.id}>
                 <TableCell className="font-medium">
-                  {/* ICONO ELIMINADO */}
                   <div>
                     <div>{desarrollo.nombre}</div>
                     <div className="text-xs text-muted-foreground">ID: {desarrollo.id}</div>
@@ -79,14 +78,12 @@ export function DevelopmentsTable({ data, onActionClick }: DevelopmentsTableProp
                 <TableCell className="text-muted-foreground">{desarrollo.cliente}</TableCell>
                 
                 {documentOrder.map(docType => {
-                  const documento = desarrollo.documentos.find(d => 
-                    d.tipo === docType || (docType === 'DAT' && d.tipo === 'Arquitectura')
-                  );
+                  // ¡CORREGIDO! Se elimina la comprobación '|| (docType === 'DAT' && d.tipo === 'Arquitectura')'
+                  const documento = desarrollo.documentos.find(d => d.tipo === docType);
                   return (
                     <TableCell key={docType} className="text-center">
                       {documento ? (
                         <div className="flex flex-col items-center justify-center">
-                          {/* LÓGICA MODIFICADA */}
                           {documento.estado === 'Pendiente' ? (
                             <Button variant="outline" size="sm" onClick={() => onActionClick(desarrollo.id, documento)} className="flex items-center gap-2">
                               <PlayCircle className="h-4 w-4" />

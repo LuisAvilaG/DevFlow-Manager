@@ -115,7 +115,8 @@ export default function Home() {
     }, [developments, searchTerm, statusFilter]);
 
     const handleActionClick = (desarrolloId: string, documento: Documento) => {
-        if (documento.tipo === 'DAT' || documento.tipo === 'Arquitectura') {
+        // ¡CORREGIDO! Se elimina la comprobación '|| documento.tipo === 'Arquitectura''
+        if (documento.tipo === 'DAT') {
             setEditingDatContext({ desarrolloId });
         } else {
             setEditingHtmlContext({ desarrolloId, tipo: documento.tipo });
@@ -166,7 +167,7 @@ export default function Home() {
     const parsedEditingDocument = parseHtmlForEditor(documentBeingEdited?.contenidoHtml || '');
 
     const datBeingEdited = editingDatContext ? 
-        developments.find(d => d.id === editingDatContext.desarrolloId)?.documentos.find(doc => doc.tipo === 'DAT' || doc.tipo === 'Arquitectura') 
+        developments.find(d => d.id === editingDatContext.desarrolloId)?.documentos.find(doc => doc.tipo === 'DAT') 
         : null;
     const decodedMarkdownContent = (datBeingEdited?.contenidoHtml || '').replace(/\\n/g, '\n');
 
@@ -213,7 +214,6 @@ export default function Home() {
                   <DialogHeader className="sr-only">
                       <DialogTitle>Guía de Ayuda</DialogTitle>
                   </DialogHeader>
-                  {/* ¡CORREGIDO! Ahora pasamos la URL del PDF */}
                   <HelpModal pdfUrl="/guia_de_uso.pdf" />
               </DialogContent>
             </Dialog>
