@@ -19,17 +19,21 @@ FROM node:18-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED 1
-
-# Establece el puerto de la aplicación. Next.js usará este valor.
 ENV PORT 3001
 
-# Copia los archivos optimizados de la etapa de construcción.
-# 'standalone' copia automáticamente solo lo necesario, resultando en una imagen mucho más pequeña.
+# ¡CORREGIDO! Crear un usuario y grupo dedicados para la aplicación.
+# Esto es más seguro y soluciona el error de construcción.
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copia los archivos optimizados, ahora con el usuario y grupo ya creados.
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Expone el puerto que definimos en la variable de entorno
+# Cambia al usuario no-root por seguridad.
+USER nextjs
+
 EXPOSE 3001
 
 # Inicia el servidor de Node.js.
