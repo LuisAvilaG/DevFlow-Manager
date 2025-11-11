@@ -1,43 +1,36 @@
-# Dockerfile para una aplicación Next.js
+# Dockerfile optimizado para producción de Next.js
 
 # Etapa 1: Instalar dependencias
-# Usa una imagen base de Node.js ligera. La versión debe coincidir con la de tu entorno de desarrollo.
 FROM node:18-alpine AS deps
 WORKDIR /app
-
-# Copia package.json y package-lock.json para instalar las dependencias.
 COPY package.json package-lock.json ./
 RUN npm install --frozen-lockfile
 
-# Etapa 2: Construir la aplicación para producción
+# Etapa 2: Construir la aplicación
 FROM node:18-alpine AS builder
 WORKDIR /app
-
-# Copia las dependencias de la etapa anterior
 COPY --from=deps /app/node_modules ./node_modules
-# Copia el resto del código fuente
 COPY . .
-
-# Ejecuta el script de construcción de Next.js
+ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm run build
 
-# Etapa 3: Ejecución en producción
+# Etapa 3: Ejecución en producción (usando la salida 'standalone')
 FROM node:18-alpine AS runner
 WORKDIR /app
-
-# Establece el entorno a producción
 ENV NODE_ENV=production
-# Desactiva la telemetría de Next.js
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Copia los artefactos de construcción de la etapa anterior
+# Establece el puerto de la aplicación. Next.js usará este valor.
+ENV PORT 3001
+
+# Copia los archivos optimizados de la etapa de construcción.
+# 'standalone' copia automáticamente solo lo necesario, resultando en una imagen mucho más pequeña.
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Expone el puerto 3000 (el puerto por defecto de Next.js)
-EXPOSE 3000
+# Expone el puerto que definimos en la variable de entorno
+EXPOSE 3001
 
-# Define el comando para iniciar la aplicación
-CMD ["npm", "start"]
+# Inicia el servidor de Node.js.
+CMD ["node", "server.js"]
