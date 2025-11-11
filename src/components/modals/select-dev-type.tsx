@@ -4,10 +4,11 @@ import { FileText, BrainCircuit } from "lucide-react";
 import { DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface SelectDevTypeProps {
-  onSelect: (type: "DED" | "Arquitectura" | "QA") => void;
+  onSelectDED: () => void;
+  onSelectQA: () => void;
 }
 
-export function SelectDevType({ onSelect }: SelectDevTypeProps) {
+export function SelectDevType({ onSelectDED, onSelectQA }: SelectDevTypeProps) {
   return (
     <>
       <DialogHeader>
@@ -18,7 +19,7 @@ export function SelectDevType({ onSelect }: SelectDevTypeProps) {
       </DialogHeader>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
         <button
-          onClick={() => onSelect("DED")}
+          onClick={onSelectDED}
           className="flex flex-col items-center justify-center p-6 border rounded-lg hover:bg-accent hover:border-primary transition-all duration-200"
         >
           <FileText className="h-10 w-10 mb-3 text-primary" />
@@ -28,7 +29,7 @@ export function SelectDevType({ onSelect }: SelectDevTypeProps) {
           </p>
         </button>
         <button
-          onClick={() => onSelect("Arquitectura")}
+          onClick={onSelectQA}
           className="flex flex-col items-center justify-center p-6 border rounded-lg hover:bg-accent hover:border-primary transition-all duration-200"
         >
           <BrainCircuit className="h-10 w-10 mb-3 text-primary" />

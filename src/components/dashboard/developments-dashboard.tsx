@@ -44,6 +44,7 @@ export default function DevelopmentsDashboard({
                 <CardTitle className="text-2xl font-bold">Gestión de desarrollos</CardTitle>
                 <CardDescription>Visualiza y gestiona todos tus desarrollos activos.</CardDescription>
             </div>
+            {/* El prop onNewDevelopment se conecta directamente al onClick */}
             <Button onClick={onNewDevelopment}>
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Nuevo Desarrollo

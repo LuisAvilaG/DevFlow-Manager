@@ -21,6 +21,7 @@ export interface Desarrollo {
   nombre: string;
   fechaCreacion: string;
   cliente: string;
+  estado: DocumentoEstado;
   horasEstimadas: string;
   documentos: Documento[];
 }

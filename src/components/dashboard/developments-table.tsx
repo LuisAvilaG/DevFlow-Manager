@@ -1,7 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -10,103 +8,105 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Desarrollo, Documento, DocumentoTipo, DocumentoEstado } from "@/lib/types";
-import { FilePen, PlusCircle, Eye } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Desarrollo, Documento, DocumentoEstado, DocumentoTipo } from "@/lib/types";
+import { PlayCircle } from 'lucide-react';
 
-type DevelopmentsTableProps = {
+// --- Helper Components ---
+
+const StatusBadge = ({ estado, onClick }: { estado: DocumentoEstado, onClick: () => void }) => {
+  const variant = {
+    "Pendiente": "outline",
+    "En edición": "secondary",
+    "Completado": "default",
+  }[estado] as "outline" | "secondary" | "default";
+
+  return (
+    <Badge 
+      variant={variant} 
+      onClick={onClick}
+      className="cursor-pointer hover:ring-2 hover:ring-ring hover:ring-offset-1 transition-all"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); }}
+    >
+      {estado}
+    </Badge>
+  );
+};
+
+// --- Main Table Component ---
+
+interface DevelopmentsTableProps {
   data: Desarrollo[];
   onActionClick: (desarrolloId: string, documento: Documento) => void;
-};
-
-const getDocumentBadgeClasses = (doc: Documento): string => {
-  const baseClasses = "capitalize font-semibold border text-xs";
-  const stateColorClasses: Record<DocumentoEstado, string> = {
-    "Pendiente": "bg-gray-100 text-gray-800 border-gray-200 border-dashed",
-    "En edición": "bg-blue-100 text-blue-800 border-blue-200",
-    "Completado": "bg-green-100 text-green-800 border-green-200",
-  };
-  return `${baseClasses} ${stateColorClasses[doc.estado]}`;
-};
+}
 
 export function DevelopmentsTable({ data, onActionClick }: DevelopmentsTableProps) {
+  
+  const documentOrder: DocumentoTipo[] = ["DED", "QA", "Riesgos", "DAT"];
+
   return (
-    <TooltipProvider>
-      <div className="border-t">
-        <Table>
-          <TableHeader>
+    <div className="border rounded-lg overflow-hidden">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[30%]">Desarrollo</TableHead>
+            <TableHead>Cliente</TableHead>
+            {documentOrder.map(docType => (
+              <TableHead key={docType} className="text-center">{docType}</TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.length === 0 ? (
             <TableRow>
-              <TableHead className="w-[100px]">ID</TableHead>
-              <TableHead>Nombre del desarrollo</TableHead>
-              <TableHead>Cliente</TableHead>
-              <TableHead>Documentos</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
+              <TableCell colSpan={documentOrder.length + 2} className="h-24 text-center">
+                No se encontraron desarrollos.
+              </TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.map((dev) => {
-              const dedDoc = dev.documentos.find(d => d.tipo === 'DED');
-              const qaDoc = dev.documentos.find(d => d.tipo === 'QA');
-              const riesgosDoc = dev.documentos.find(d => d.tipo === 'Riesgos');
-              const datDoc = dev.documentos.find(d => d.tipo === 'DAT' || d.tipo === 'Arquitectura') 
-                           || { tipo: 'DAT', estado: 'Pendiente', contenidoHtml: null };
-
-              const isDatReady = dedDoc?.estado === 'Completado' && qaDoc?.estado === 'Completado' && riesgosDoc?.estado === 'Completado';
-
-              return (
-                <TableRow key={dev.id}>
-                  <TableCell className="font-medium text-muted-foreground">{dev.id}</TableCell>
-                  <TableCell className="font-semibold">{dev.nombre}</TableCell>
-                  <TableCell>{dev.cliente}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      {dev.documentos.map((doc) => (
-                        <Badge key={doc.tipo} className={getDocumentBadgeClasses(doc)}>
-                          {doc.tipo === 'Arquitectura' ? 'DAT' : doc.tipo}
-                        </Badge>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex gap-2 justify-end">
-                      <Button size="sm" variant="outline" onClick={() => onActionClick(dev.id, dedDoc!)}><FilePen className="mr-2 h-4 w-4" /> DED</Button>
-                      <Button size="sm" variant="outline" onClick={() => onActionClick(dev.id, qaDoc!)}><FilePen className="mr-2 h-4 w-4" /> QA</Button>
-                      <Button size="sm" variant="outline" onClick={() => onActionClick(dev.id, riesgosDoc!)}><FilePen className="mr-2 h-4 w-4" /> Riesgos</Button>
-                      
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="inline-block">
-                            <Button
-                              size="sm"
-                              variant="default"
-                              className="w-32" // Ancho fijo para el botón
-                              disabled={!isDatReady && datDoc.estado === 'Pendiente'}
-                              onClick={() => onActionClick(dev.id, datDoc)}
-                            >
-                              {datDoc.estado === 'Pendiente' ? <PlusCircle className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}
-                              {datDoc.estado === 'Pendiente' ? 'Crear DAT' : 'Ver DAT'}
+          ) : (
+            data.map((desarrollo) => (
+              <TableRow key={desarrollo.id}>
+                <TableCell className="font-medium">
+                  {/* ICONO ELIMINADO */}
+                  <div>
+                    <div>{desarrollo.nombre}</div>
+                    <div className="text-xs text-muted-foreground">ID: {desarrollo.id}</div>
+                  </div>
+                </TableCell>
+                <TableCell className="text-muted-foreground">{desarrollo.cliente}</TableCell>
+                
+                {documentOrder.map(docType => {
+                  const documento = desarrollo.documentos.find(d => 
+                    d.tipo === docType || (docType === 'DAT' && d.tipo === 'Arquitectura')
+                  );
+                  return (
+                    <TableCell key={docType} className="text-center">
+                      {documento ? (
+                        <div className="flex flex-col items-center justify-center">
+                          {/* LÓGICA MODIFICADA */}
+                          {documento.estado === 'Pendiente' ? (
+                            <Button variant="outline" size="sm" onClick={() => onActionClick(desarrollo.id, documento)} className="flex items-center gap-2">
+                              <PlayCircle className="h-4 w-4" />
+                              <span>Iniciar</span>
                             </Button>
-                          </div>
-                        </TooltipTrigger>
-                        {!isDatReady && datDoc.estado === 'Pendiente' && (
-                          <TooltipContent>
-                            <p>Completa DED, QA y Riesgos para crear el DAT.</p>
-                          </TooltipContent>
-                        )}
-                      </Tooltip>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
-    </TooltipProvider>
+                          ) : (
+                            <StatusBadge estado={documento.estado} onClick={() => onActionClick(desarrollo.id, documento)} />
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
