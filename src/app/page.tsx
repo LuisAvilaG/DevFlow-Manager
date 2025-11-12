@@ -12,7 +12,7 @@ import { DevelopmentsTable } from '@/components/dashboard/developments-table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 
-// --- Funciones Helper (Más Robustas) ---
+// --- Funciones Helper ---
 const isBase64 = (str: string): boolean => {
   if (!str || str.trim() === '') return false;
   const base64Regex = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
@@ -21,15 +21,11 @@ const isBase64 = (str: string): boolean => {
 
 const decodeBase64 = (base64String: string | null): string => {
   if (!base64String) return '';
-  if (!isBase64(base64String)) {
-    return base64String;
-  }
+  if (!isBase64(base64String)) { return base64String; }
   try {
     const binaryString = atob(base64String);
     const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
+    for (let i = 0; i < binaryString.length; i++) { bytes[i] = binaryString.charCodeAt(i); }
     return new TextDecoder('utf-8').decode(bytes);
   } catch (e) {
     console.error("Error al decodificar Base64:", e, "String:", base64String);
@@ -62,12 +58,19 @@ const adaptApiDataToDesarrollo = (apiData: any[]): Desarrollo[] => {
     fechaCreacion: item.createdAt ? new Date(JSON.parse(item.createdAt)).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
     cliente: item.cliente || 'Sin Cliente',
     horasEstimadas: String(item.horasEstimadas || '0') + 'h',
-    documentos: (item.documentos || []).map((doc: Documento) => ({
+    documentos: (item.documentos || []).map((doc: any) => {
+      // ¡CORRECCIÓN DEFINITIVA! Si el tipo es 'Arquitectura', lo renombramos a 'DAT'.
+      // Esto asegura la retrocompatibilidad sin romper los tipos de TypeScript.
+      const tipoCorrecto = doc.tipo === 'Arquitectura' ? 'DAT' : doc.tipo;
+      return {
         ...doc,
+        tipo: tipoCorrecto,
         contenidoHtml: decodeBase64(doc.contenidoHtml)
-    })),
+      };
+    }),
   }));
 };
+
 
 // --- Componente Principal ---
 export default function Home() {
@@ -115,7 +118,6 @@ export default function Home() {
     }, [developments, searchTerm, statusFilter]);
 
     const handleActionClick = (desarrolloId: string, documento: Documento) => {
-        // ¡CORREGIDO! Se elimina la comprobación '|| documento.tipo === 'Arquitectura''
         if (documento.tipo === 'DAT') {
             setEditingDatContext({ desarrolloId });
         } else {

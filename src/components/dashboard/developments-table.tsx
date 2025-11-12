@@ -45,6 +45,7 @@ interface DevelopmentsTableProps {
 
 export function DevelopmentsTable({ data, onActionClick }: DevelopmentsTableProps) {
   
+  // ¡CORREGIDO Y VERIFICADO! Se incluye "DAT" en el orden de los documentos.
   const documentOrder: DocumentoTipo[] = ["DED", "QA", "Riesgos", "DAT"];
 
   return (
@@ -78,7 +79,6 @@ export function DevelopmentsTable({ data, onActionClick }: DevelopmentsTableProp
                 <TableCell className="text-muted-foreground">{desarrollo.cliente}</TableCell>
                 
                 {documentOrder.map(docType => {
-                  // ¡CORREGIDO! Se elimina la comprobación '|| (docType === 'DAT' && d.tipo === 'Arquitectura')'
                   const documento = desarrollo.documentos.find(d => d.tipo === docType);
                   return (
                     <TableCell key={docType} className="text-center">

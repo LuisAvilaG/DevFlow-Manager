@@ -1,17 +1,33 @@
-import { useLocalStorage } from './use-local-storage';
+"use client"
 
-export type Settings = {
-  clickUpApiKey: string;
-  n8nHtmlGenerationWebhook: string;
-  n8nSaveHtmlWebhook: string;
-};
+import { useLocalStorage } from "@/hooks/use-local-storage"
+
+export interface Settings {
+  n8nHtmlGenerationWebhook: string
+  n8nSaveHtmlWebhook: string
+  clickUpApiKey: string
+}
 
 const defaultSettings: Settings = {
-  clickUpApiKey: '',
-  n8nHtmlGenerationWebhook: 'https://n8n.dinamicsw.site/webhook-test/generar_html',
-  n8nSaveHtmlWebhook: 'https://n8n.dinamicsw.site/webhook-test/guardar_html',
-};
+  n8nHtmlGenerationWebhook: "",
+  n8nSaveHtmlWebhook: "",
+  clickUpApiKey: "",
+}
 
 export function useSettings() {
-  return useLocalStorage<Settings>('devflow-settings', defaultSettings);
+  const [settings, setSettings] = useLocalStorage<Settings>(
+    "devflow-settings",
+    defaultSettings
+  )
+
+  // ¡CORREGIDO! Nos aseguramos de que los valores nunca sean 'undefined'.
+  const mergedSettings = {
+    ...defaultSettings,
+    ...settings,
+  }
+
+  return {
+    settings: mergedSettings,
+    setSettings,
+  }
 }
