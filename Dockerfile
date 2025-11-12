@@ -4,21 +4,20 @@
 FROM node:18-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm install --frozen-lockfile
+# ¡CORREGIDO! Se añade --legacy-peer-deps para resolver conflictos con la versión RC de React.
+RUN npm install --legacy-peer-deps
 
 # Etapa 2: Construir la aplicación
 FROM node:18-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# ¡CORREGIDO! Sintaxis actualizada para ENV.
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 # Etapa 3: Ejecución en producción (usando la salida 'standalone')
 FROM node:18-alpine AS runner
 WORKDIR /app
-# ¡CORREGIDO! Sintaxis actualizada para ENV.
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3001
